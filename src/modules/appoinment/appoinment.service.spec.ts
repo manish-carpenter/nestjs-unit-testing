@@ -33,4 +33,50 @@ describe('AppoinmentService', () => {
       confirmed: false,
     });
   });
+
+  it(`should throw error when end time is before start time`, () => {
+    const startTime = new Date('2022-01-01T14:00:00Z')
+    const endTime = new Date('2022-01-01T13:00:00Z')
+
+    const appoinment = () => {
+      return service.scheduleAppoinment({
+        patientId: 1,
+        startTime: startTime,
+        endTime: endTime,
+      })
+    }
+    expect(appoinment).toThrowError(`Appointment's endTime should be after startTime`);
+  });
+
+  it(`should throw error if end time is equal to start time`, () => {
+    const appoinmentData = {
+      patientId: 1,
+      startTime: new Date('2022-01-01T14:00:00Z'),
+      endTime: new Date('2022-01-01T14:00:00Z'),
+    }
+
+    const appoinment = () => {
+      return service.scheduleAppoinment(appoinmentData);
+    };
+
+    expect(appoinment).toThrowError(`Appointment's endTime should be after startTime`)
+  })
+
+  it(`should throw error if appointment end time is in next day`, () => {
+    const startTime = new Date(`2022-01-01T13:00:00Z`);
+    const endTime = new Date(`2022-02-02T14:00:00Z`);
+
+    const appointmentData = {
+      patientId: 1,
+      startTime: startTime,
+      endTime: endTime,
+    }
+
+    const appointment = () => {
+      return service.scheduleAppoinment(appointmentData)
+    }
+
+    expect(appointment).toThrowError(`Appointment should end on the same day`)
+
+  })
 });
